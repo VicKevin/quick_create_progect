@@ -20,7 +20,7 @@ gulp.task('style',function() {
 	gulp.src(['src/styles/*.less','!src/styles/_*.less'])
 	.pipe(less())
 	.pipe(cssnano())
-	.pipe(gulp.dest('dist/styles'))
+	.pipe(gulp.dest('dist/css'))
 	.pipe(browserSync.reload({
 		stream: true
 	}));
@@ -52,6 +52,25 @@ gulp.task('images',function() {
 	}));
 });
 
+// 引用包直接全部复制过来
+
+gulp.task('lib',function(){
+	gulp.src('src/lib/*/*/*')
+	.pipe(gulp.dest('dist/lib'))
+	.pipe(browserSync.reload({
+		stream: true
+	}));
+});
+
+// 引用包直接全部复制过来
+
+gulp.task('font',function(){
+	gulp.src('src/font/*.*')
+	.pipe(gulp.dest('dist/font'))
+	.pipe(browserSync.reload({
+		stream: true
+	}));
+});
 
 // html压缩
 var htmlmin = require('gulp-htmlmin');
@@ -69,6 +88,8 @@ gulp.task('html',function() {
 
 // 启动服务
 var browserSync = require('browser-sync');
+
+
 gulp.task('serve',function() {
 	browserSync({
 		server: {
