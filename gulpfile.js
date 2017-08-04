@@ -55,7 +55,7 @@ gulp.task('images',function() {
 // 引用包直接全部复制过来
 
 gulp.task('lib',function(){
-	gulp.src('src/lib/*/*/*')
+	gulp.src(['src/lib/*/*','src/lib/*/*/*'])
 	.pipe(gulp.dest('dist/lib'))
 	.pipe(browserSync.reload({
 		stream: true
