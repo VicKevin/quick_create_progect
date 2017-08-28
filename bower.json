@@ -1,0 +1,21 @@
+{
+  "name": "webapp",
+  "description": "",
+  "main": "gulpfile.js",
+  "authors": [
+    "ViaKevin <18838979008@163.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/VicKevin/quick_create_progect",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "gulp": "^3.9.1"
+  }
+}

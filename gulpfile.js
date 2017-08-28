@@ -1,106 +1,78 @@
-// 1: LESS 编译 压缩 合并
-// 2: js 合并 压缩 混淆
-// 3: img 复制
-// 4: html 压缩
-
-// 在gulpfile中先载入gulp包，因为这个包提供了一些API
+// gulp主模块
 var gulp = require('gulp');
+// 此后的应用已$代替()实例化
+var $ = require('gulp-load-plugins')();
+// 定义已完成
+var open = require('open');
 
-// less文件解析
-var less = require('gulp-less');
+var app = {
+	srcPath: 'src/', // 源地址
+	devPath: 'build/', // 开发目录
+	prdPath: 'dist/' // 上线目录
+}
 
-// css 压缩
-var cssnano = require('gulp-cssnano');
-
-
-// 1: LESS 编译 压缩 合并:合并没有什么必要，一般都在less文件里导包
-// 创建一个style任务
-gulp.task('style',function() {
-	// 这里面的任务在执行style任务时自动执行
-	gulp.src(['src/styles/*.less','!src/styles/_*.less'])
-	.pipe(less())
-	.pipe(cssnano())
-	.pipe(gulp.dest('dist/css'))
-	.pipe(browserSync.reload({
-		stream: true
-	}));
+gulp.task('libs',function() {
+	gulp.src('bower_components/**/*.js')
+	.pipe(gulp.dest(app.devPath + 'libs'))
+	.pipe(gulp.dest(app.prdPath + 'libs'))
+	.pipe($.connect.reload());
 });
 
-// js合并
-var concat = require('gulp-concat');
-
-// js 压缩混淆
-var uglify = require('gulp-uglify');
-
-// 2: js 合并 压缩 混淆
-gulp.task('script',function() {
-	gulp.src('src/scripts/*.js')
-	.pipe(concat('all.js'))
-	.pipe(uglify())
-	.pipe(gulp.dest('dist/scripts'))
-	.pipe(browserSync.reload({
-		stream: true
-	}));
-});
-
-// 3: img 复制
-gulp.task('images',function() {
-	gulp.src('src/images/*.*')
-	.pipe(gulp.dest('dist/images'))
-	.pipe(browserSync.reload({
-		stream: true
-	}));
-});
-
-// 引用包直接全部复制过来
-
-gulp.task('lib',function(){
-	gulp.src(['src/lib/*/*','src/lib/*/*/*'])
-	.pipe(gulp.dest('dist/lib'))
-	.pipe(browserSync.reload({
-		stream: true
-	}));
-});
-
-// 引用包直接全部复制过来
-
-gulp.task('font',function(){
-	gulp.src('src/font/*.*')
-	.pipe(gulp.dest('dist/font'))
-	.pipe(browserSync.reload({
-		stream: true
-	}));
-});
-
-// html压缩
-var htmlmin = require('gulp-htmlmin');
-
-
-// 4: html 压缩
 gulp.task('html',function() {
-	gulp.src('src/*.html')
-	.pipe(htmlmin({collapseWhitespace: true}))
-	.pipe(gulp.dest('dist'))
-	.pipe(browserSync.reload({
-		stream: true
-	}));
+	gulp.src(app.srcPath + '**/*.html')
+	.pipe(gulp.dest(app.devPath))
+	.pipe(gulp.dest(app.prdPath))
+	.pipe($.connect.reload());
 });
 
-// 启动服务
-var browserSync = require('browser-sync');
+gulp.task('less',function() {
+	gulp.src(app.srcPath + 'styles/index.less')
+	.pipe($.less())
+	.pipe(gulp.dest(app.devPath + 'css'))
+	.pipe($.cssmin())
+	.pipe(gulp.dest(app.prdPath + 'css'))
+	.pipe($.connect.reload());
+});
 
+gulp.task('script',function() {
+	gulp.src(app.srcPath + 'scripts/**/*.js')
+	.pipe($.concat('index.js'))
+	.pipe(gulp.dest(app.devPath + 'js'))
+	.pipe($.uglify())
+	.pipe(gulp.dest(app.prdPath + 'js'))
+	.pipe($.connect.reload());
+});
 
-gulp.task('serve',function() {
-	browserSync({
-		server: {
-			baseDir:['dist']
-		}
-	}, function(err, bs) {
-	    console.log(bs.options.getIn(["urls", "local"]));
+gulp.task('images',function() {
+	gulp.src(app.srcPath + 'images/**/*')
+	.pipe(gulp.dest(app.devPath + 'images'))
+	.pipe($.imagemin())
+	.pipe(gulp.dest(app.prdPath + 'images'))
+	.pipe($.connect.reload());
+});
+
+gulp.task('build',['libs','html','less','script','images']);
+
+gulp.task('clean',function() {
+	gulp.src([app.devPath,app.prdPath])
+	.pipe($.clean())
+});
+
+gulp.task('serve',['build'],function() {
+	$.connect.server({
+		root: [app.devPath],
+		livereload: true,
+		port: 2000
 	});
-	// 对文件变动进行监视
-	gulp.watch('src/styles/*.less',['style']);
-	gulp.watch('src/scripts/*.js',['script']);
-	gulp.watch('src/images/*.*',['images']);
-	gulp.watch('src/*.html',['html']);
+
+	open('http://localhost:2000');
+
+	gulp.watch('bower_components/**/*',['libs']);
+	gulp.watch(app.srcPath + '**/*.html',['html']);
+	gulp.watch(app.srcPath + 'styles/index.less',['less']);
+	gulp.watch(app.srcPath + 'scripts/**/*.js',['script']);
+	gulp.watch(app.srcPath + 'images/**/*',['images']);
+
 });
+
+gulp.task('default',['serve']);
