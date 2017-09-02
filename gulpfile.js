@@ -69,7 +69,7 @@ gulp.task('serve',['build'],function() {
 
 	gulp.watch('bower_components/**/*',['libs']);
 	gulp.watch(app.srcPath + '**/*.html',['html']);
-	gulp.watch(app.srcPath + 'styles/index.less',['less']);
+	gulp.watch(app.srcPath + 'styles/**/*',['less']);
 	gulp.watch(app.srcPath + 'scripts/**/*.js',['script']);
 	gulp.watch(app.srcPath + 'images/**/*',['images']);
 
